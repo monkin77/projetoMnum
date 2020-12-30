@@ -147,6 +147,20 @@ def euler(lb, ub, h, pi, dydx, dzdx):
         z += deltaZ
     return (x, y, z)
 
+def rk2(lb, ub, h, pi, dydx, dzdx):
+    x, y, z = pi
+    it = 0
+    while round(x, 2) < ub:
+        mi_array_rk2.append(y)
+        mp_array_rk2.append(z)
+        delta1Y = h * dydx(x + h / 2, y + (h / 2) * dydx(x, y))
+        delta1Z = h * dzdx(x + h / 2, y + (h / 2) * dydx(x, y), z + (h / 2) * dzdx(x, y, z))
+        x += h
+        y += delta1Y
+        z += delta1Z
+        it += 1
+    print("RK2 iterations", it)
+    return x, y, z
 
 def rk4(lb, ub, h, pi, dydx, dzdx):
     x = pi[0]
