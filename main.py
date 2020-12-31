@@ -137,6 +137,7 @@ def euler(lb, ub, h, pi, dydx, dzdx):
     x = pi[0]   # tempo
     y = pi[1]   # massa no compartimento central
     z = pi[2]   # massa no comp. plasmático
+    it = 0
     while(round(x, 2) < ub):
         miArray.append(y)
         mpArray.append(z)
@@ -145,27 +146,54 @@ def euler(lb, ub, h, pi, dydx, dzdx):
         x += h
         y += deltaY
         z += deltaZ
+        it += 1
+    print("Euler iterations:", it)
     return (x, y, z)
+
+def improvedEuler(lb, ub, h, pi, dydx, dzdx):
+    prevPoint = (pi[0], pi[1], pi[2])
+    miArray.append(prevPoint[1])
+    mpArray.append(prevPoint[2])
+    currPoint = [prevPoint[0] + h, prevPoint[1] + dydx(prevPoint[0], prevPoint[1]) * h, prevPoint[2] + dzdx(prevPoint[0], prevPoint[1], prevPoint[2])*h]
+    it = 0
+    while(round(currPoint[0], 2) < ub):
+        miArray.append(currPoint[1])
+        mpArray.append(currPoint[2])
+        currdydx = dydx(currPoint[0], currPoint[1])
+        currdzdx = dydx(currPoint[0], currPoint[1])
+        nextPoint = (prevPoint[0] + 2*h, prevPoint[1] + currdydx * 2*h, prevPoint[2] + currdzdx * 2*h )
+        futuredydx = dydx(nextPoint[0], nextPoint[1])
+        futuredzdx = dzdx(nextPoint[0], nextPoint[1], nextPoint[2])
+        deltaY = h * (futuredydx + currdydx) / 2
+        deltaZ = h * (futuredzdx + currdzdx) / 2
+        prevPoint = currPoint
+        currPoint[0] += h
+        currPoint[1] += deltaY
+        currPoint[2] += deltaZ
+        it += 1
+    print("Improved Euler iterations:", it)
+    return (currPoint[0], currPoint[1], currPoint[2])
 
 def rk2(lb, ub, h, pi, dydx, dzdx):
     x, y, z = pi
     it = 0
     while round(x, 2) < ub:
-        mi_array_rk2.append(y)
-        mp_array_rk2.append(z)
+        miArray.append(y)
+        mpArray.append(z)
         delta1Y = h * dydx(x + h / 2, y + (h / 2) * dydx(x, y))
         delta1Z = h * dzdx(x + h / 2, y + (h / 2) * dydx(x, y), z + (h / 2) * dzdx(x, y, z))
         x += h
         y += delta1Y
         z += delta1Z
         it += 1
-    print("RK2 iterations", it)
+    print("RK2 iterations:", it)
     return x, y, z
 
 def rk4(lb, ub, h, pi, dydx, dzdx):
     x = pi[0]
     y = pi[1]
     z = pi[2]
+    it = 0
     while(round(x, 2) < ub):
         miArray.append(y)
         mpArray.append(z)
@@ -182,6 +210,8 @@ def rk4(lb, ub, h, pi, dydx, dzdx):
         x += h
         y += deltaY
         z += deltaZ
+        it += 1
+    print("RK4 iterations:", it)
     return (x, y, z)
 
 
@@ -197,38 +227,43 @@ x = np.arange(0, duracaoTratamento, h)     # range(0, duracaoTratamento, h)
 
 #print(findEulerH(lb, duracaoTratamento, h, pi, dmidt, dmpdt))  -> h to use with Euler method is 1
 
-           #D(t) em funçao do tempo
-x = np.arange(0, freq * 5, 1)     # range(0, 90, 1)
+"""           #D(t) em funçao do tempo
+x = np.arange(0, duracaoTratamento, 1)     # range(0, 90, 1)
 y = [ D3(i) for i in x ]   # list comprehension
 plt.plot(x,y)
-plt.show()    
+plt.xlabel('time / min')
+plt.ylabel('D(t) / mg min-1')
+
+# giving a title to my graph
+plt.title('Função de Administração')
+plt.show()    """
 
 # MASSA DE AMOXICILINA NO PLASMA  &  MASSA DE AMOXICILINA NO COMPARTIMENTO CENTRAL
 # y = [ rk4(lb, i , h, pi, dmidt, dmpdt)[2] for i in x ]   # list comprehension
 rk4(lb, duracaoTratamento, h, pi, dmidt, dmpdt)       # Much faster to call the function once and append all y to an array
-
+#improvedEuler(lb, duracaoTratamento, h, pi, dmidt, dmpdt)
 
 # CONCENTRAÇAO DE AMOXICILINA NO PLASMA
 cmpl = list(map(lambda x: x/Vap, mpArray))
 #print("Concentraçao no plasma", cmi)
 
 # CONCENTRAÇAO DE AMOXICILINA NO COMP. CENTRAL
-cmi = list(map(lambda x: x/Vap, miArray))
+#cmi = list(map(lambda x: x/Vap, miArray))
 #print("Concentraçao no plasma", cmi)
 
 # 3rd STEP - Plotting the functions
-"""
+
 # plotting the points
-plt.plot(x, cmpl)
+plt.plot(x, miArray)
 
 # naming the x axis
-plt.xlabel('time (min)')
+plt.xlabel('tempo (min)')
 # naming the y axis
-plt.ylabel('massa de amoxicilina no plasma (mg) ')
+plt.ylabel('Massa (mg) ')
 
 # giving a title to my graph
-plt.title('test')
+plt.title('Massa de amoxicilina no compartimento central')
 
 # function to show the plot
-plt.show() """
+plt.show() 
 
