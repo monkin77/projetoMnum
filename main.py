@@ -79,7 +79,7 @@ def D2(t):
         return 0
 
 halfLife = 210  #min
-Dmax = doseComp / ( (tmax/2) + (math.e**(-Ket * tmax))/Ket  )    # calculated in the notebook
+Dmax = doseComp / 345    # calculated in the notebook
 linearSlope = Dmax / tmax   #slope of the linear part of D(t)
 print("Dmax: ", Dmax, "linearSlope: ", linearSlope)
 
@@ -87,7 +87,7 @@ def D_Tooth(t):
     if t <= tmax:
         return linearSlope * t
     elif t >= tmax:
-        return Dmax * ( math.e**(-Ket * (t -tmax) ) )   # (t - tmax since the decrase only starts after reaching the max)
+        return Dmax * ( math.e**(-Ket * (t - tmax) ) )   # (t - tmax since the decrase only starts after reaching the max)
 
 def D3(t):
     if t < 0: 
@@ -227,7 +227,7 @@ x = np.arange(0, duracaoTratamento, h)     # range(0, duracaoTratamento, h)
 
 #print(findEulerH(lb, duracaoTratamento, h, pi, dmidt, dmpdt))  -> h to use with Euler method is 1
 
-"""           #D(t) em funçao do tempo
+"""          #D(t) em funçao do tempo
 x = np.arange(0, duracaoTratamento, 1)     # range(0, 90, 1)
 y = [ D3(i) for i in x ]   # list comprehension
 plt.plot(x,y)
@@ -254,15 +254,15 @@ cmpl = list(map(lambda x: x/Vap, mpArray))
 # 3rd STEP - Plotting the functions
 
 # plotting the points
-plt.plot(x, miArray)
+plt.plot(x, cmpl)
 
 # naming the x axis
-plt.xlabel('tempo (min)')
+plt.xlabel('concentraçao (mg / ml)')
 # naming the y axis
-plt.ylabel('Massa (mg) ')
+plt.ylabel('massa (mg) ')
 
 # giving a title to my graph
-plt.title('Massa de amoxicilina no compartimento central')
+plt.title('Concentraçao plasmatica de amoxicilina')
 
 # function to show the plot
 plt.show() 
